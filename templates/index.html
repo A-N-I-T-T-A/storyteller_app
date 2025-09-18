@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storyteller AI - Creative Story Generator</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #06b6d4;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border-light: #e5e7eb;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0fdf4 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px var(--shadow-light), 0 4px 6px var(--shadow-light);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        .card-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 1s ease-out 0.3s both;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInUp 1s ease-out 0.5s both;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-light);
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-white);
+            color: var(--text-dark);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            background: var(--bg-white);
+            outline: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 16px;
+            padding: 14px 32px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            background: linear-gradient(135deg, #4338ca, #0891b2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-color), #f97316);
+            border: none;
+            border-radius: 16px;
+            padding: 12px 28px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, #d97706, #ea580c);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            border: none;
+            border-radius: 16px;
+            padding: 12px 28px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .audio-player {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .audio-player .card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid var(--secondary-color);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
+        }
+
+        .audio-player .card-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        #storyAudio {
+            border-radius: 8px;
+            background: white;
+        }
+
+        .tts-loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .tts-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .story-container {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--primary-color);
+            animation: fadeIn 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+
+        .story-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .story-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .range-container {
+            position: relative;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.6rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px var(--shadow-medium);
+            border-color: var(--primary-color);
+        }
+
+        .simple-features {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .feature-item i {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover i {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-title {
+                font-size: 2.2rem;
+            }
+            
+            .card-subtitle {
+                font-size: 1rem;
+            }
+            
+            .card-header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .main-container {
+                padding: 10px;
+            }
+            
+            .simple-features {
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .feature-item {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .feature-item span {
+                display: none;
+            }
+            
+            .feature-item i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h1 class="card-title">
+                                <i class="fas fa-magic"></i> Storyteller AI
+                            </h1>
+                            <p class="card-subtitle">Create amazing stories with the power of AI</p>
+                            
+                            <!-- Simple feature highlights -->
+                            <div class="simple-features mt-3">
+                                <div class="feature-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span>5 Genres</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <span>3 Lengths</span>
+                                </div>
+                        
+                                <div class="feature-item">
+                                    <i class="fas fa-volume-up"></i>
+                                    <span>Text-to-Speech</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-download"></i>
+                                    <span>Download</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-4">
+                            <form method="post" id="storyForm">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="genre" class="form-label">
+                                            <i class="fas fa-book-open me-2"></i>Genre
+                                        </label>
+                                        <select class="form-select" name="genre" id="genre" required onchange="updateGenreDisplay()">
+                                            <option value="Fantasy">🧙‍♂️ Fantasy</option>
+                                            <option value="Romance">💕 Romance</option>
+                                            <option value="Sci-Fi">🚀 Sci-Fi</option>
+                                            <option value="Horror">👻 Horror</option>
+                                            <option value="Mystery">🔍 Mystery</option>
+                                        </select>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Selected: <span id="genre-display">🧙‍♂️ Fantasy</span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label for="length" class="form-label">
+                                            <i class="fas fa-ruler me-2"></i>Story Length
+                                        </label>
+                                        <div class="range-container">
+                                            <input type="range" class="form-range" id="length" 
+                                                   min="0" max="2" value="1" 
+                                                   oninput="updateLengthLabel(this.value)">
+                                            <div class="range-labels">
+                                                <span>Short</span>
+                                                <span>Medium</span>
+                                                <span>Long</span>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="length_value" id="length_value" value="medium">
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Selected: <span id="length-display">Medium</span> story
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-brain me-2"></i>AI Model
+                                        </label>
+                                        <div class="form-control bg-light">
+                                            <strong>Original Story Generator</strong>
+                                            <br><small class="text-muted">Specialized for story generation</small>
+                                        </div>
+                                        <input type="hidden" name="model" value="original">
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="prompt" class="form-label">
+                                        <i class="fas fa-lightbulb me-2"></i>Story Prompt
+                                    </label>
+                                    <textarea class="form-control" name="prompt" id="prompt" 
+                                              rows="4" placeholder="Enter your story idea, character, or theme here... 
+Example: 'A young wizard discovers a hidden library in their school' or 'A detective solving a case in a futuristic city'" 
+                                              required></textarea>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg pulse">
+                                        <i class="fas fa-wand-magic-sparkles me-2"></i>Generate Story
+                                    </button>
+                                </div>
+    </form>
+                            
+                            <div class="loading" id="loading">
+                                <div class="spinner"></div>
+                                <p>Creating your amazing story...</p>
+                            </div>
+                        </div>
+                    </div>
+
+    {% if story %}
+                    <div class="story-container">
+                        <h3 class="story-title">
+                            <i class="fas fa-scroll"></i> Your Generated Story
+                        </h3>
+                        <div class="story-content">{{ story }}</div>
+                        
+                        <div class="text-center mt-4">
+                            <form method="post" action="/download_story" style="display: inline;">
+                                <input type="hidden" name="story_content" value="{{ story }}">
+                                <button type="submit" class="btn btn-secondary me-3">
+                                    <i class="fas fa-download me-2"></i>Download Story
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="btn btn-success" id="ttsBtn" onclick="generateSpeech()">
+                                <i class="fas fa-volume-up me-2"></i>Listen to Story
+                            </button>
+                        </div>
+                        
+                        <!-- Audio Player -->
+                        <div class="audio-player mt-3" id="audioPlayer" style="display: none;">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-headphones me-2"></i>Audio Player
+                                    </h6>
+                                    <audio controls class="w-100" id="storyAudio">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Generated using Google Text-to-Speech
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function updateLengthLabel(value) {
+            const labels = ['Short', 'Medium', 'Long'];
+            const values = ['short', 'medium', 'long'];
+            const label = labels[parseInt(value)];
+            const val = values[parseInt(value)];
+            document.getElementById('length_value').value = val;
+            document.getElementById('length-display').textContent = label;
+        }
+        
+        // Model descriptions
+        // Model is fixed to original generator
+        
+        function updateGenreDisplay() {
+            const genreSelect = document.getElementById('genre');
+            const genreDisplay = document.getElementById('genre-display');
+            const selectedOption = genreSelect.options[genreSelect.selectedIndex];
+            genreDisplay.textContent = selectedOption.text;
+        }
+        
+        // Model is fixed to original generator - no event listener needed
+        
+        document.getElementById('storyForm').addEventListener('submit', function() {
+            document.getElementById('loading').style.display = 'block';
+            document.querySelector('.card-body').style.opacity = '0.7';
+        });
+        
+        // Add some interactive animations
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Add typing animation to textarea
+        const textarea = document.getElementById('prompt');
+        textarea.addEventListener('focus', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        textarea.addEventListener('blur', function() {
+            this.style.transform = 'scale(1)';
+        });
+
+        // Text-to-Speech functionality
+        function generateSpeech() {
+            const storyContent = document.querySelector('.story-content').textContent;
+            const ttsBtn = document.getElementById('ttsBtn');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const storyAudio = document.getElementById('storyAudio');
+            
+            if (!storyContent.trim()) {
+                alert('No story content to convert to speech');
+                return;
+            }
+            
+            // Show loading state
+            ttsBtn.disabled = true;
+            ttsBtn.innerHTML = '<div class="tts-spinner"></div>Generating Audio...';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('story_content', storyContent);
+            
+            // Make request to generate speech
+            fetch('/generate_speech', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate speech');
+                }
+                return response.blob();
+            })
+            .then(audioBlob => {
+                // Create audio URL and set it to the audio element
+                const audioUrl = URL.createObjectURL(audioBlob);
+                storyAudio.src = audioUrl;
+                
+                // Show audio player
+                audioPlayer.style.display = 'block';
+                
+                // Reset button
+                ttsBtn.disabled = false;
+                ttsBtn.innerHTML = '<i class="fas fa-volume-up me-2"></i>Listen to Story';
+                
+                // Auto-play the audio
+                storyAudio.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+            })
+            .catch(error => {
+                console.error('TTS Error:', error);
+                alert('Failed to generate speech. Please try again.');
+                
+                // Reset button
+                ttsBtn.disabled = false;
+                ttsBtn.innerHTML = '<i class="fas fa-volume-up me-2"></i>Listen to Story';
+            });
+        }
+
+        // Clean up audio URLs when page unloads
+        window.addEventListener('beforeunload', function() {
+            const storyAudio = document.getElementById('storyAudio');
+            if (storyAudio && storyAudio.src) {
+                URL.revokeObjectURL(storyAudio.src);
+            }
+        });
+    </script>
+</body>
+</html>
